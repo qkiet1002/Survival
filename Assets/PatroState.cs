@@ -8,14 +8,14 @@ public class PatroState : StateMachineBehaviour
     List<Transform> wayPoints = new List<Transform>();
     NavMeshAgent agent;
 
-    Transform player;
+    List<Transform>  players = new List<Transform>();
 
     float ChaseRange = 10;
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.SetBool("isChasing", false);
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        TryFindPlayers();
         agent = animator.GetComponent<NavMeshAgent>();
         agent.speed = 3.5f;
         timer = 0;
@@ -25,10 +25,50 @@ public class PatroState : StateMachineBehaviour
         agent.SetDestination(wayPoints[Random.Range(0,wayPoints.Count)].position);
 
     }
+    void TryFindPlayers()
+    {
+        players.Clear();
+        GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject playerObject in playerObjects)
+        {
+            if (playerObject.activeInHierarchy)
+            {
+                players.Add(playerObject.transform);
+            }
+        }
+    }
+    void RemoveInactivePlayers()
+    {
+        players.RemoveAll(player => player == null || !player.gameObject.activeInHierarchy);
+    }
+
+    Transform GetClosestPlayer()
+    {
+        Transform closestPlayer = null;
+        float shortestDistance = Mathf.Infinity;
+
+        foreach (Transform player in players)
+        {
+            float distance = Vector3.Distance(player.position, agent.transform.position);
+            if (distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                closestPlayer = player;
+            }
+        }
+
+        return closestPlayer;
+    }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        RemoveInactivePlayers();
+        if (players.Count == 0)
+        {
+            TryFindPlayers();
+        }
+
         if (agent.remainingDistance < agent.stoppingDistance)
             agent.SetDestination(wayPoints[Random.Range(0, wayPoints.Count)].position);
 
@@ -37,10 +77,15 @@ public class PatroState : StateMachineBehaviour
         {
             animator.SetBool("isPatrolling", false);
         }
-        float distance = Vector3.Distance(player.position, animator.transform.position);
-        if (distance < ChaseRange)
+
+        Transform closestPlayer = GetClosestPlayer();
+        if (closestPlayer != null)
         {
-            animator.SetBool("isChasing", true);
+            float distance = Vector3.Distance(closestPlayer.position, animator.transform.position);
+            if (distance < ChaseRange)
+            {
+                animator.SetBool("isChasing", true);
+            }
         }
 
     }

@@ -16,12 +16,7 @@ public class swinming : MonoBehaviour
     [SerializeField] private float thisHP;
     [SerializeField] private float MaxHP = 100;
 
-    bool isMousePressed = true; //Input.GetMouseButton(0);
-
-
-
-
-
+ 
     void Start()
     {
         thisHP = MaxHP;
@@ -53,6 +48,9 @@ public class swinming : MonoBehaviour
        // animationgun();
 
         HandleInput();
+
+        Thanhmau.UpdateHP(thisHP, MaxHP);
+
     }
     
     public void TakeDamage(int amout)
@@ -154,7 +152,10 @@ public class swinming : MonoBehaviour
         {
             animator.SetBool("gun", false);
         }
-
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            animator.SetTrigger("slash");
+        }
     }
 
     private void OnTriggerEnter(Collider other)

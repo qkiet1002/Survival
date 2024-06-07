@@ -7,13 +7,6 @@ public class cammera : MonoBehaviour
 
     public static bool cursorlocked = true;
 
-    Animator animator;
-
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-    }
-
     void Start()
     {
 

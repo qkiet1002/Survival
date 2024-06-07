@@ -42,7 +42,6 @@ public class gun : MonoBehaviour
         bulletsLeft = magazineSize;
         readyToShoot = true;
 
-        outOfAmmoText.gameObject.SetActive(false);
 
         // Directly get the components since they are on the same GameObject
         thirdPersonController = GetComponent<vThirdPersonController>();
@@ -76,7 +75,7 @@ public class gun : MonoBehaviour
 
         if (bulletsLeft == 0 && !reloading)
         {
-            outOfAmmoText.gameObject.SetActive(true);
+            outOfAmmoText.SetText("Đã hết đạn");
             Swinming.offrunR();
         }
     }
@@ -143,7 +142,6 @@ public class gun : MonoBehaviour
     {
         reloading = true;
         Invoke("ReloadFinished", reloadTime);
-        outOfAmmoText.gameObject.SetActive(false);
     }
 
     private void ReloadFinished()
